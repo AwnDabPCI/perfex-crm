@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libfreetype6-dev \
     libzip-dev \
     libxml2-dev \
+    libonig-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
