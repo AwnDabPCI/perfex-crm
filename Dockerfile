@@ -42,7 +42,8 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
     sed -i 's|\${APACHE_PID_FILE}|/var/run/apache2/apache2.pid|g' /etc/apache2/apache2.conf && \
     sed -i 's|\${APACHE_RUN_USER}|www-data|g' /etc/apache2/apache2.conf && \
     sed -i 's|\${APACHE_RUN_GROUP}|www-data|g' /etc/apache2/apache2.conf && \
-    sed -i 's|\${APACHE_LOG_DIR}|/var/log/apache2|g' /etc/apache2/apache2.conf
+    sed -i 's|\${APACHE_LOG_DIR}|/var/log/apache2|g' /etc/apache2/apache2.conf && \
+    find /etc/apache2 -type f -name "*.conf" -exec sed -i 's|\${APACHE_LOG_DIR}|/var/log/apache2|g' {} \;
 
 WORKDIR /var/www/html
 
