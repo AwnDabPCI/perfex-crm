@@ -35,7 +35,9 @@ RUN a2enmod rewrite && \
     a2enmod env
 
 # Set ServerName to suppress Apache warning
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
+    mkdir -p /var/run/apache2 && \
+    sed -i 's/${APACHE_RUN_DIR}/\/var\/run\/apache2/g' /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
 
