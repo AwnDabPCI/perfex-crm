@@ -54,6 +54,9 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+# Remove install folder for production security
+RUN rm -rf install/
+
 # Install PHP dependencies
 RUN cd application && \
     composer install --no-dev --no-interaction --optimize-autoloader --ignore-platform-req=ext-imap && \
