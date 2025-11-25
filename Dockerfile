@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libxml2-dev \
     libonig-dev \
-    libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions - only essential ones
@@ -45,7 +44,7 @@ COPY . .
 
 # Install PHP dependencies
 RUN cd application && \
-    composer install --no-dev --no-interaction --optimize-autoloader && \
+    composer install --no-dev --no-interaction --optimize-autoloader --ignore-platform-req=ext-imap && \
     cd ..
 
 # Create app-config.php from sample if it doesn't exist
