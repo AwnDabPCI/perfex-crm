@@ -16,10 +16,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions - only essential ones
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/* && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
+    pdo_pgsql \
     zip \
     gd \
     xml \
@@ -55,10 +59,29 @@ RUN cd application && \
     composer install --no-dev --no-interaction --optimize-autoloader --ignore-platform-req=ext-imap && \
     cd ..
 
-# Create app-config.php from sample if it doesn't exist
-RUN if [ ! -f application/config/app-config.php ]; then \
-    cp application/config/app-config-sample.php application/config/app-config.php; \
-    fi
+# Create app-config.php with environment variables
+RUN php -r " \
+    \$baseUrl = getenv('APP_BASE_URL') ?: 'http://localhost/'; \
+    \$dbDriver = getenv('APP_DB_DRIVER') ?: 'pgsql'; \
+    \$dbHost = getenv('APP_DB_HOSTNAME') ?: 'localhost'; \
+    \$dbPort = getenv('APP_DB_PORT') ?: '5432'; \
+    \$dbUser = getenv('APP_DB_USERNAME') ?: 'root'; \
+    \$dbPass = getenv('APP_DB_PASSWORD') ?: ''; \
+    \$dbName = getenv('APP_DB_NAME') ?: 'perfex_crm'; \
+    \$encKey = getenv('APP_ENC_KEY') ?: 'default_encryption_key_change_in_production'; \
+    \
+    \$config = file_get_contents('application/config/app-config-sample.php'); \
+    \$config = str_replace('[base_url]', \$baseUrl, \$config); \
+    \$config = str_replace('[db_hostname]', \$dbHost, \$config); \
+    \$config = str_replace('[db_username]', \$dbUser, \$config); \
+    \$config = str_replace('[db_password]', \$dbPass, \$config); \
+    \$config = str_replace('[db_name]', \$dbName, \$config); \
+    \$config = str_replace('[encryption_key]', \$encKey, \$config); \
+    \$config = str_replace('[db_driver]', \$dbDriver, \$config); \
+    \$config = str_replace('[db_port]', \$dbPort, \$config); \
+    file_put_contents('application/config/app-config.php', \$config); \
+    echo 'Config file created with environment variables'; \
+    " || cp application/config/app-config-sample.php application/config/app-config.php
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html && \
