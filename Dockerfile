@@ -100,9 +100,11 @@ RUN echo "upload_max_filesize = 100M" > /usr/local/etc/php/conf.d/uploads.ini &&
     echo "post_max_size = 100M" >> /usr/local/etc/php/conf.d/uploads.ini && \
     echo "max_execution_time = 300" >> /usr/local/etc/php/conf.d/uploads.ini && \
     echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini && \
-    echo "display_errors = Off" >> /usr/local/etc/php/conf.d/uploads.ini && \
+    echo "display_errors = On" >> /usr/local/etc/php/conf.d/uploads.ini && \
     echo "log_errors = On" >> /usr/local/etc/php/conf.d/uploads.ini && \
-    echo "error_log = /var/log/php_errors.log" >> /usr/local/etc/php/conf.d/uploads.ini
+    echo "error_log = /var/log/php_errors.log" >> /usr/local/etc/php/conf.d/uploads.ini && \
+    touch /var/log/php_errors.log && \
+    chmod 666 /var/log/php_errors.log
 
 EXPOSE 80
 
