@@ -13,22 +13,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libxml2-dev \
     libonig-dev \
-    libssl-dev \
+    libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure and install PHP extensions
+# Configure and install PHP extensions - only essential ones
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
-    mysqli \
     zip \
     gd \
     xml \
     mbstring \
-    bcmath \
-    intl \
-    soap
+    bcmath
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
