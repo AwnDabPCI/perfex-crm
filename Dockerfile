@@ -7,25 +7,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
     unzip \
-    # For GD library
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    # For ZIP extension
     libzip-dev \
-    # For XML/SOAP
     libxml2-dev \
-    # For IMAP
-    libc-client-dev \
-    libkrb5-dev \
-    # For image optimization
-    jpegoptim \
-    optipng \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
-    docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
     docker-php-ext-install -j$(nproc) \
     pdo \
     pdo_mysql \
@@ -35,7 +25,6 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg && \
     xml \
     mbstring \
     bcmath \
-    imap \
     intl \
     soap
 
