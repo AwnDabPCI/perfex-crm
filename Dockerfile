@@ -54,6 +54,10 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . .
 
+# Copy entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Remove install folder for production security
 RUN rm -rf install/
 
@@ -61,30 +65,6 @@ RUN rm -rf install/
 RUN cd application && \
     composer install --no-dev --no-interaction --optimize-autoloader --ignore-platform-req=ext-imap && \
     cd ..
-
-# Create app-config.php with environment variables
-RUN php -r " \
-    \$baseUrl = getenv('APP_BASE_URL') ?: 'http://localhost/'; \
-    \$dbDriver = getenv('APP_DB_DRIVER') ?: 'pgsql'; \
-    \$dbHost = getenv('APP_DB_HOSTNAME') ?: 'localhost'; \
-    \$dbPort = getenv('APP_DB_PORT') ?: '5432'; \
-    \$dbUser = getenv('APP_DB_USERNAME') ?: 'root'; \
-    \$dbPass = getenv('APP_DB_PASSWORD') ?: ''; \
-    \$dbName = getenv('APP_DB_NAME') ?: 'perfex_crm'; \
-    \$encKey = getenv('APP_ENC_KEY') ?: 'default_encryption_key_change_in_production'; \
-    \
-    \$config = file_get_contents('application/config/app-config-sample.php'); \
-    \$config = str_replace('[base_url]', \$baseUrl, \$config); \
-    \$config = str_replace('[db_hostname]', \$dbHost, \$config); \
-    \$config = str_replace('[db_username]', \$dbUser, \$config); \
-    \$config = str_replace('[db_password]', \$dbPass, \$config); \
-    \$config = str_replace('[db_name]', \$dbName, \$config); \
-    \$config = str_replace('[encryption_key]', \$encKey, \$config); \
-    \$config = str_replace('[db_driver]', \$dbDriver, \$config); \
-    \$config = str_replace('[db_port]', \$dbPort, \$config); \
-    file_put_contents('application/config/app-config.php', \$config); \
-    echo 'Config file created with environment variables'; \
-    " || cp application/config/app-config-sample.php application/config/app-config.php
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html && \
@@ -111,4 +91,5 @@ RUN echo "upload_max_filesize = 100M" > /usr/local/etc/php/conf.d/uploads.ini &&
 
 EXPOSE 80
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["apache2", "-D", "FOREGROUND"]
